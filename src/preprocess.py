@@ -2,8 +2,8 @@ import pandas as pd
 import re
 from pathlib import Path
 
-RAW_DATA_PATH = Path("../dat/raw/questions.csv")
-PROCESSED_DATA_PATH = Path("../dat/processed/processed_questions.csv")
+RAW_DATA_PATH = Path("../Data/Raw/questions.csv")
+PROCESSED_DATA_PATH = Path("../Data/Processed/processed_questions.csv")
 
 def clean_text(text: str) -> str:
     """Basic text cleaning for question classification."""

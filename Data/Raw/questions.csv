@@ -1,0 +1,206 @@
+Question,Label
+What is data?,unknown
+Whats is data analysis?,unknown
+what is data cleansing?,unknown
+What is data visualization?,unknown
+What is data wrangling?,unknown
+What is metadata?,unknown
+What is the difference between correlation and causation?,unknown
+What is the difference between qualitative and quantitative data?,unknown
+What is the definition of data?,unknown
+What is big data and what are its main characteristics?,unknown
+What is the role of data in decision-making?,unknown
+What is the significance of exploratory data analysis?,unknown
+What is the difference between data privacy and data security?,unknown
+What is the difference between a shallow copy and a deep copy in Python?,unknown
+How do you treat outliers in a dataset?,unknown
+How do you analyze data?,unknown
+How do you ensure the accuracy and reliability of data?,unknown
+How do you choose a dataset?,unknown
+How do you find data from the internet?,unknown
+How do you clean data?,unknown
+How do you represent data visually?,unknown
+How do you ensure the privacy and security of data?,unknown
+How do you store and manage large volumes of data?,unknown
+How do you use data mining techniques to extract insights?,unknown
+How do clustering algorithms work in data mining?,unknown
+How do you prepare data for analysis?,unknown
+How do you protect data collection in research?,unknown
+How can data help identify a problem?,unknown
+How can data visualization help navigate large datasets?,unknown
+How can data be anonymized while maintaining utility?,unknown
+How can organizations ensure the quality and accuracy of their data?,unknown
+How can techniques like data cleansing and integration improve reliability?,unknown
+How can data analytics contribute to business growth?,unknown
+How can data be used in real life?,unknown
+How can data help society?,unknown
+How can data be protected from unauthorized access?,unknown
+How can outliers be handled appropriately in data analysis?,unknown
+How can data mining algorithms be used for fraud detection?,unknown
+How can stratification ensure representative samples?,unknown
+How can data-driven decision-making impact organizational performance?,unknown
+How many sources of data are there?,unknown
+How is data formed?,unknown
+How is data helpful to us?,unknown
+How fast is data growing?,unknown
+Why is data important?,unknown
+Why is data essential in research?,unknown
+Are there any scenarios where a binary search tree might not be the best choice?,unknown
+Are there variations of binary search trees that improve performance?,unknown
+Can a binary search tree be empty?,unknown
+How do you find the lowest common ancestor of two nodes in a BST?,unknown
+How does a skewed binary search tree affect time complexity?,unknown
+What are the conditions required for a binary tree to be a valid BST?,unknown
+What is the difference between a binary search tree and a B-tree?,unknown
+What are tree traversals?,unknown
+What is a balanced search tree?,unknown
+Why is it important to maintain balance in a BST?,unknown
+How can duplicate elements be handled in a binary search tree?,unknown
+What are the similarities and differences between a BST and a Heap?,unknown
+How can you determine the height of a binary search tree?,unknown
+What are some real-world applications of binary search trees?,unknown
+How does insertion of sorted data affect BST performance?,unknown
+What is a doubly linked list and how does it differ from a singly linked list?,unknown
+How do you reverse a doubly linked list in-place?,unknown
+What are the basic components of a graph?,unknown
+What is the difference between BFS and DFS?,unknown
+What is Dijkstra’s algorithm and how does it work?,unknown
+What operations can be performed efficiently on a binary search tree?,unknown
+How do you delete a node from a binary search tree?,unknown
+What is the purpose of tree rotations in maintaining balance?,unknown
+How does AVL tree balancing work?,unknown
+What is the difference between an AVL tree and a Red-Black tree?,unknown
+How do you determine whether a binary search tree is height-balanced?,unknown
+What are the advantages of using a self-balancing tree?,unknown
+How do you perform an in-order traversal on a BST?,unknown
+What is the worst-case height of a binary search tree?,unknown
+How does inserting sorted data affect BST performance?,unknown
+What is the purpose of a sentinel node in linked lists?,unknown
+How do you insert a node at the beginning of a doubly linked list?,unknown
+How do you insert a node at the end of a doubly linked list?,unknown
+How do you delete a node from a doubly linked list?,unknown
+What are the advantages of a doubly linked list over a singly linked list?,unknown
+How do you traverse a doubly linked list backward?,unknown
+What is the time complexity of searching in a linked list?,unknown
+How do you merge two linked lists?,unknown
+What is a circular linked list and how does it work?,unknown
+How do you detect a cycle in a linked list?,unknown
+What is the difference between a directed and undirected graph?,unknown
+How do you represent a graph using an adjacency list?,unknown
+How do you represent a graph using an adjacency matrix?,unknown
+What is a weighted graph?,unknown
+What is a path in graph theory?,unknown
+What is a cycle in a graph?,unknown
+How do you determine if a graph is connected?,unknown
+What is a spanning tree?,unknown
+What is a minimum spanning tree?,unknown
+How does Prim’s algorithm work?,unknown
+How does Kruskal’s algorithm work?,unknown
+What is topological sorting?,unknown
+How do you detect a cycle in a directed graph?,unknown
+What is the difference between BFS and DFS in terms of traversal order?,unknown
+How do you find the shortest path in an unweighted graph?,unknown
+How do you find the shortest path in a weighted graph?,unknown
+What is the purpose of a priority queue in Dijkstra’s algorithm?,unknown
+What is a hash table and how does it work?,unknown
+What is the difference between open addressing and chaining in hashing?,unknown
+How do collisions occur in hash tables?,unknown
+What is a stack and how is it used?,unknown
+What is a queue and how is it used?,unknown
+How do you implement a stack using an array?,unknown
+How do you implement a queue using a linked list?,unknown
+What is recursion and how is it used in tree traversal?,unknown
+What is dynamic programming and when should it be used?,unknown
+What is memoization?,unknown
+How do you analyze the time complexity of recursive algorithms?,unknown
+What is the difference between greedy algorithms and dynamic programming?,unknown
+How do you evaluate the efficiency of a data structure?,unknown
+What is the purpose of a binary tree traversal?,unknown
+How do you convert a binary tree into a binary search tree?,unknown
+What is the difference between a full binary tree and a complete binary tree?,unknown
+How do you check if a binary tree is symmetric?,unknown
+What is the role of recursion in tree-based algorithms?,unknown
+How do you count the number of leaf nodes in a binary tree?,unknown
+What is a threaded binary tree?,unknown
+How do you find the diameter of a binary tree?,unknown
+What is the purpose of a parent pointer in tree structures?,unknown
+How do you determine if two binary trees are identical?,unknown
+What is the difference between a linked list and an array?,unknown
+How do you split a linked list into two halves?,unknown
+What is the purpose of a dummy node in linked list operations?,unknown
+How do you remove duplicate nodes from a linked list?,unknown
+What is the time complexity of inserting into a linked list?,unknown
+How do you rotate a linked list?,unknown
+What is a multigraph?,unknown
+How do you check if a graph contains a Hamiltonian cycle?,unknown
+What is the difference between a tree and a graph?,unknown
+How do you find articulation points in a graph?,unknown
+What is a bipartite graph?,unknown
+How do you determine if a graph is bipartite?,unknown
+What is the purpose of a union-find data structure?,unknown
+How does path compression improve union-find performance?,unknown
+What is a trie and what is it used for?,unknown
+How do you insert a word into a trie,unknown
+What is the difference between a min-heap and a max-heap?,unknown
+How do you build a heap from an unsorted array?,unknown
+What is heapify and how does it work?,unknown
+How do you implement a priority queue using a heap?,unknown
+What is the purpose of a binary search?,unknown
+How do you convert a sorted array into a balanced a BST?,unknown
+What is the difference between a binary tree and a binary search tree?,unknown
+How do you find the maximum value in a BST?,unknown
+What is the role of a root node in a tree?,unknown
+How do you calculate the depth of a node in a tree?,unknown
+What is a preorder traversal used for?,unknown
+How do you check if a binary tree is complete?,unknown
+What is the purpose of a tail pointer in linked lists?,unknown
+How do you remove the last node of a doubly linked list?,unknown
+What is the difference between a node’s next and previous pointers?,unknown
+How do you concatenate two doubly linked lists?,unknown
+What is the purpose of sentinel nodes in linked list design?,unknown
+How do you determine the length of a linked list?,unknown
+What is an adjacency list and why is it useful?,unknown
+How do you check if a graph is acyclic?,unknown
+What is the difference between a simple graph and a multigraph?,unknown
+How do you find all neighbors of a node in a graph?,unknown
+What is the purpose of edge weights in graphs?,unknown
+How do you determine if a graph is directed?,unknown
+What is a disconnected graph?,unknown
+How do you find bridges in a graph?,unknown
+What is the purpose of hashing in data structures?,unknown
+How do you choose a good hash function?,unknown
+What is rehashing and when is it needed?,unknown
+How do you implement a hash table using chaining?,unknown
+What is the purpose of a heap in priority scheduling?,unknown
+How do you delete the root of a heap?,unknown
+What is the difference between heap sort and merge sort?,unknown
+How do you evaluate the space complexity of a data structure?,unknown
+Are the fundamental soft and hard skills needed in your data professional?,unknown
+Can data help me in research to make the right topic?,unknown
+Can you define Data visualization?,unknown
+Define the term 'Data Wrangling in Data Analytics?,unknown
+Does data save time?,unknown
+Is background information really necessary for a research?,unknown
+Is data analysis really necessary for research?,unknown
+Is data entry important in business?,unknown
+Is it possible to store large amounts of data in a single platform?,unknown
+Is there any historical data available for comparison or trend analysis?,unknown
+"As data collection becomes more pervasive, how can we ensure that ethical considerations surrounding data privacy are upheld?",unknown
+Data stands for what?,unknown
+How are bioinformatics and data analysis applied in medical research?,unknown
+How can data analysis be applied to understand the cultural impact of ancient civilizations?,unknown
+How can data analytics be leveraged to gain insights from social media data?,unknown
+How can data be safe?,unknown
+How can data help in role playing?,unknown
+How can data technologies aid in preserving cultural heritage sites?,unknown
+How can I make sure that the data is correct for research?,unknown
+How can organizations ensure the quality and accuracy of their data?,unknown
+How can techniques like data cleansing and integration contribute to maintaining data accuracy?,unknown
+How can the integration of historical archives contribute to understanding long-term trends?,unknown
+How can we address the ethical implications of big data collection and analysis?,unknown
+How can we leverage advanced data fusion techniques to extract richer insights?,unknown
+How can you prevent someone from copying a cell in a spreadsheet?,unknown
+How do different types of temporal data impact the choice of visualization approach?,unknown
+How do these approaches impact the validity and reliability of the analysis?,unknown
+How does data collection and analysis contribute to the development of knowledge?,unknown
+How does geographic information system (GIS) technology enable spatial data analysis?,unknown
