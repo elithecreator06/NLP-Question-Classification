@@ -6,6 +6,20 @@ from sklearn.metrics import classification_report
 from pathlib import Path
 import joblib
 
+"""
+Baseline training script for the question classification project. 
+
+This module trains a traditional machine-learning model using TF-IDF features and Logistic Regression.
+The aim is to establish a benchmark level of performance before fine-tuning a transformer-based model such as DistilBERT.
+
+The workflow is as follows:
+1. Load the processed dataset (cleaned text + preliminary labels).
+2. Split the data into training and testing sets using stratification to preserve label distribution.
+3. Convert text into numerical features using TF-IDF, capturing word importance across the dataset.
+4. Train a Logistic Regression classifier as te baseline model.
+5. Evaluate the model using standard metrics (precision, recall, F1-score).
+6. Save both the trained model and the TF-IDF vectorizer for later use in predication scripts or comparison with transformer-based results. 
+"""
 
 DATA_PATH = Path("../Data/Processed/processed_questions.csv")
 MODEL_PATH = Path("../Models/baseline_logreg.pkl")
