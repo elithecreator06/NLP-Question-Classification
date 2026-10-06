@@ -2,6 +2,24 @@ import pandas as pd
 import re
 from pathlib import Path
 
+"""
+Preprocessing script for the question classification project. 
+
+This module prepares the raw dataset for both the baseline model and the DislBert fine-tuning stage. It performs two main tasks:
+1. Text Cleaning (clean_text):
+    - Convert question to lowercase
+    - Removes unnecessary characters and collapses whiteshape
+    - Produces a consistent text format for downstream models
+    
+2. Rule-Based Labelling (assign_label):
+    - Applies a simple heuristic to assign each question a preliminary label
+    - Labels include: conceptual, computational, procedural, and other
+    - These labels act as placeholders until manual annotation or model-based refinement is applied later in the pipeline
+    
+The script loads the raw questions.csv file, processes each entry, and saves the cleaned and labelled dataset to processed_questions.csv. 
+This ensures that both TF-IDF baseline model and the DistilBERT classifier train on a standardised and reproducible dataset.
+"""
+
 RAW_DATA_PATH = Path("../Data/Raw/questions.csv")
 PROCESSED_DATA_PATH = Path("../Data/Processed/processed_questions.csv")
 
