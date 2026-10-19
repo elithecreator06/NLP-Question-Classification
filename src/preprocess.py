@@ -21,7 +21,6 @@ The script loads the raw questions.csv file, processes each entry, and saves the
 This ensures that both TF-IDF baseline model and the DistilBERT classifier train on a standardised and reproducible dataset.
 """
 
-# Resolve paths from this file so the scripts work from any current directory.
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RAW_DATA_PATH = PROJECT_ROOT / "Data" / "Raw" / "questions.csv"
 PROCESSED_DATA_PATH = PROJECT_ROOT / "Data" / "Processed" / "processed_questions.csv"
@@ -46,7 +45,6 @@ def assign_label(question: str) -> str:
         return "computational"
     if any(word in question.lower() for word in ["steps", "procedure", "how do"]):
         return "procedural"
-    # Keep unmatched questions rather than silently dropping useful training data.
     return "other"
 
 def preprocess(
@@ -69,7 +67,6 @@ def preprocess(
         raise ValueError("Raw dataset has no non-empty questions.")
 
     print("Cleaning data...")
-    # Standardise the name used by all downstream pipeline stages.
     df = df.rename(columns={question_column: "question"})
     df = df.dropna(subset=["question"])
     df["question"] = df["question"].astype(str).str.strip()
