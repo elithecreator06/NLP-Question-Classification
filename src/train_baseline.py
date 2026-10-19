@@ -21,6 +21,7 @@ The workflow is as follows:
 6. Save both the trained model and the TF-IDF vectorizer for later use in predication scripts or comparison with transformer-based results. 
 """
 
+# Anchor artifact paths to the repository instead of the caller's directory.
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = PROJECT_ROOT / "Data" / "Processed" / "processed_questions.csv"
 MODEL_PATH = PROJECT_ROOT / "Models" / "baseline_logreg.pkl"
@@ -51,6 +52,7 @@ def train_baseline(
     y = df["label"]
 
     print("Splitting dataset...")
+    # Stratification keeps each preliminary label represented in both splits.
     x_train, x_test, y_train, y_test = train_test_split(
         x, y, test_size = 0.2, random_state = 42, stratify = y
     )
@@ -66,6 +68,7 @@ def train_baseline(
 
     print("Evaluating model...")
     y_pred = model.predict(x_test_vector)
+    # Small classes may receive no predictions; zero_division keeps reporting stable.
     print(classification_report(y_test, y_pred, zero_division=0))
 
     print("Saving model and vectorizer...")

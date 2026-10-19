@@ -30,6 +30,7 @@ The workflow is as follows:
 This script forms the core of the modern NLP component of the project and provides an improvement over traditional machine-learning methods.
 """
 
+# Use repository-relative outputs so CLI execution is independent of cwd.
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = PROJECT_ROOT / "Data" / "Processed" / "processed_questions.csv"
 MODEL_SAVE_PATH = PROJECT_ROOT / "Models" / "distilbert-question-classifier"
@@ -47,6 +48,7 @@ def load_data(data_path: Path = DATA_PATH):
     if df["label"].nunique() < 2 or df["label"].value_counts().min() < 2:
         raise ValueError("Each of at least two labels needs two examples for a stratified split.")
     x = df["cleaned"].tolist()
+    # DistilBERT expects integer class IDs, while the CSV holds readable labels.
     label_encoder = LabelEncoder()
     y = label_encoder.fit_transform(df["label"]).tolist()
     label_map = dict(enumerate(label_encoder.classes_))
@@ -89,6 +91,7 @@ def train_transformer(
         raise ValueError("epochs, batch_size, and max_length must all be positive.")
 
     texts, labels, label_map = load_data(data_path)
+    # Use the same deterministic, stratified holdout as the baseline comparison.
     train_texts, eval_texts, train_labels, eval_labels = train_test_split(
         texts, labels, test_size=0.2, random_state=42, stratify=labels
     )
@@ -114,6 +117,7 @@ def train_transformer(
         "report_to": "none",
         "seed": 42,
     }
+    # Transformers renamed this option; support both installed API variants.
     if "eval_strategy" in inspect.signature(TrainingArguments).parameters:
         arguments["eval_strategy"] = "epoch"
     else:
@@ -125,6 +129,7 @@ def train_transformer(
         "eval_dataset": QuestionDataset(eval_encodings, eval_labels),
         "compute_metrics": compute_metrics,
     }
+    # Likewise, Trainer renamed its tokenizer argument in newer releases.
     if "processing_class" in inspect.signature(Trainer).parameters:
         trainer_options["processing_class"] = tokenizer
     else:
