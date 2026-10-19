@@ -21,31 +21,13 @@ The workflow is as follows:
 6. Save both the trained model and the TF-IDF vectorizer for later use in predication scripts or comparison with transformer-based results. 
 """
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DATA_PATH = PROJECT_ROOT / "Data" / "Processed" / "processed_questions.csv"
-MODEL_PATH = PROJECT_ROOT / "Models" / "baseline_logreg.pkl"
-VECTORIZER_PATH = PROJECT_ROOT / "Models" / "tfidf_vectorizer.pkl"
+DATA_PATH = Path("../Data/Processed/processed_questions.csv")
+MODEL_PATH = Path("../Models/baseline_logreg.pkl")
+VECTORIZER_PATH = Path("../Models/tfidf_vectorizer.pkl")
 
-def train_baseline(
-    data_path: Path = DATA_PATH,
-    model_path: Path = MODEL_PATH,
-    vectorizer_path: Path = VECTORIZER_PATH,
-):
+def train_baseline():
     print("Loading processed dataset...")
-    if not data_path.is_file():
-        raise FileNotFoundError(
-            f"Processed dataset not found: {data_path}. Run preprocess.py first."
-        )
-    df = pd.read_csv(data_path)
-    required_columns = {"cleaned", "label"}
-    missing_columns = required_columns.difference(df.columns)
-    if missing_columns:
-        raise ValueError(f"Processed dataset is missing: {', '.join(sorted(missing_columns))}")
-    df = df.dropna(subset=["cleaned", "label"])
-    if df.empty or df["label"].nunique() < 2:
-        raise ValueError("At least two labels are needed to train a classifier.")
-    if df["label"].value_counts().min() < 2:
-        raise ValueError("Each label needs at least two examples for a stratified split.")
+    df = pd.read_csv(DATA_PATH)
 
     x = df["cleaned"]
     y = df["label"]
@@ -66,13 +48,12 @@ def train_baseline(
 
     print("Evaluating model...")
     y_pred = model.predict(x_test_vector)
-    print(classification_report(y_test, y_pred, zero_division=0))
+    print(classification_report(y_test, y_pred))
 
     print("Saving model and vectorizer...")
-    model_path.parent.mkdir(parents=True, exist_ok=True)
-    vectorizer_path.parent.mkdir(parents=True, exist_ok=True)
-    joblib.dump(model, model_path)
-    joblib.dump(vectorizer, vectorizer_path)
+    MODEL_PATH.parent.mkdir(parents = True, exist_ok = True)
+    joblib.dump(model,MODEL_PATH)
+    joblib.dump(vectorizer,VECTORIZER_PATH)
 
     print("Done! Baseline model saved.")
 

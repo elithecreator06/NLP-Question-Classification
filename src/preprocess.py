@@ -1,7 +1,6 @@
-from pathlib import Path
-import re
-
 import pandas as pd
+import re
+from pathlib import Path
 
 """
 Preprocessing script for the question classification project. 
@@ -21,9 +20,8 @@ The script loads the raw questions.csv file, processes each entry, and saves the
 This ensures that both TF-IDF baseline model and the DistilBERT classifier train on a standardised and reproducible dataset.
 """
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-RAW_DATA_PATH = PROJECT_ROOT / "Data" / "Raw" / "questions.csv"
-PROCESSED_DATA_PATH = PROJECT_ROOT / "Data" / "Processed" / "processed_questions.csv"
+RAW_DATA_PATH = Path("../Data/Raw/questions.csv")
+PROCESSED_DATA_PATH = Path("../Data/Processed/processed_questions.csv")
 
 def clean_text(text: str) -> str:
     """Basic text cleaning for question classification."""
@@ -47,41 +45,21 @@ def assign_label(question: str) -> str:
         return "procedural"
     return "other"
 
-def preprocess(
-    raw_data_path: Path = RAW_DATA_PATH,
-    processed_data_path: Path = PROCESSED_DATA_PATH,
-) -> pd.DataFrame:
-    """Create a cleaned, preliminary-labelled dataset and return it."""
+def preprocess():
     print("Loading raw data...")
-    if not raw_data_path.is_file():
-        raise FileNotFoundError(f"Raw dataset not found: {raw_data_path}")
-    df = pd.read_csv(raw_data_path)
-
-    # The supplied CSV uses ``Question``; accepting case variants avoids a
-    # brittle dependency on presentation-only column casing.
-    columns = {str(column).casefold(): column for column in df.columns}
-    if "question" not in columns:
-        raise ValueError("Raw dataset must contain a 'Question' column.")
-    question_column = columns["question"]
-    if df[question_column].dropna().empty:
-        raise ValueError("Raw dataset has no non-empty questions.")
+    df = pd.read_csv(RAW_DATA_PATH)
 
     print("Cleaning data...")
-    df = df.rename(columns={question_column: "question"})
-    df = df.dropna(subset=["question"])
-    df["question"] = df["question"].astype(str).str.strip()
-    df = df[df["question"].ne("")].copy()
     df["cleaned"] = df["question"].apply(clean_text)
 
     print("Assigning labels...")
     df["label"] = df["cleaned"].apply(assign_label)
 
     print("Saving processed dataset...")
-    processed_data_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(processed_data_path, index=False)
+    PROCESSED_DATA_PATH.parent.mkdir(parents = True, exist_ok = True)
+    df.to_csv(PROCESSED_DATA_PATH, index = False)
 
-    print("Done! Processed dataset saved to: ", processed_data_path)
-    return df
+    print("Done! Processed dataset saved to: ", PROCESSED_DATA_PATH)
 
 if __name__ == "__main__":
     preprocess()
