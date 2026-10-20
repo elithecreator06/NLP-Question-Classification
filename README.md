@@ -12,7 +12,6 @@ python -m pip install -r requirements.txt
 python src/preprocess.py
 python src/train_baseline.py
 python src/train_transformer.py
-python src/test_transformer.py
 ```
 
 ## Data note
