@@ -21,13 +21,38 @@ The workflow is as follows:
 6. Save both the trained model and the TF-IDF vectorizer for later use in predication scripts or comparison with transformer-based results. 
 """
 
-DATA_PATH = Path("../Data/Processed/processed_questions.csv")
-MODEL_PATH = Path("../Models/baseline_logreg.pkl")
-VECTORIZER_PATH = Path("../Models/tfidf_vectorizer.pkl")
+# Keep data and artifacts inside this repository regardless of where it is run from.
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DATA_PATH = PROJECT_ROOT / "Data" / "Processed" / "processed_questions.csv"
+MODEL_PATH = PROJECT_ROOT / "Models" / "baseline_logreg.pkl"
+VECTORIZER_PATH = PROJECT_ROOT / "Models" / "tfidf_vectorizer.pkl"
+
+def load_processed_data():
+    """Load the prepared data and check it is suitable for a fair split."""
+    if not DATA_PATH.is_file():
+        raise FileNotFoundError(
+            f"Processed dataset not found: {DATA_PATH}. Run preprocess.py first."
+        )
+
+    df = pd.read_csv(DATA_PATH)
+    required_columns = {"cleaned", "label"}
+    missing_columns = required_columns.difference(df.columns)
+    if missing_columns:
+        missing = ", ".join(sorted(missing_columns))
+        raise ValueError(f"Processed dataset is missing required column(s): {missing}")
+
+    # Drop incomplete rows before splitting so the train and test sets stay valid.
+    df = df.dropna(subset=["cleaned", "label"])
+    label_counts = df["label"].value_counts()
+    if len(label_counts) < 2:
+        raise ValueError("At least two labels are needed to train a classifier.")
+    if label_counts.min() < 2:
+        raise ValueError("Each label needs at least two examples for a stratified split.")
+    return df
 
 def train_baseline():
     print("Loading processed dataset...")
-    df = pd.read_csv(DATA_PATH)
+    df = load_processed_data()
 
     x = df["cleaned"]
     y = df["label"]
@@ -48,7 +73,8 @@ def train_baseline():
 
     print("Evaluating model...")
     y_pred = model.predict(x_test_vector)
-    print(classification_report(y_test, y_pred))
+    # The smallest class may have no predictions, so report zero rather than warning.
+    print(classification_report(y_test, y_pred, zero_division=0))
 
     print("Saving model and vectorizer...")
     MODEL_PATH.parent.mkdir(parents = True, exist_ok = True)

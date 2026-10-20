@@ -20,8 +20,10 @@ The script loads the raw questions.csv file, processes each entry, and saves the
 This ensures that both TF-IDF baseline model and the DistilBERT classifier train on a standardised and reproducible dataset.
 """
 
-RAW_DATA_PATH = Path("../Data/Raw/questions.csv")
-PROCESSED_DATA_PATH = Path("../Data/Processed/processed_questions.csv")
+# Derive paths from this file rather than the terminal's current directory.
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+RAW_DATA_PATH = PROJECT_ROOT / "Data" / "Raw" / "questions.csv"
+PROCESSED_DATA_PATH = PROJECT_ROOT / "Data" / "Processed" / "processed_questions.csv"
 
 def clean_text(text: str) -> str:
     """Basic text cleaning for question classification."""
@@ -43,14 +45,27 @@ def assign_label(question: str) -> str:
         return "computational"
     if any(word in question.lower() for word in ["steps", "procedure", "how do"]):
         return "procedural"
+    # Keeping an "other" group means unfamiliar questions are not thrown away.
     return "other"
 
 def preprocess():
     print("Loading raw data...")
+    # Fail early with a useful message instead of a long Pandas traceback.
+    if not RAW_DATA_PATH.is_file():
+        raise FileNotFoundError(f"Raw dataset not found: {RAW_DATA_PATH}")
     df = pd.read_csv(RAW_DATA_PATH)
+    if "Question" not in df.columns:
+        raise ValueError("The raw dataset needs a 'Question' column.")
+
+    # Empty questions cannot teach either model anything, so leave them out.
+    df = df.dropna(subset=["Question"])
+    df["Question"] = df["Question"].astype(str).str.strip()
+    df = df[df["Question"].ne("")].copy()
+    if df.empty:
+        raise ValueError("The raw dataset does not contain any usable questions.")
 
     print("Cleaning data...")
-    df["cleaned"] = df["question"].apply(clean_text)
+    df["cleaned"] = df["Question"].apply(clean_text)
 
     print("Assigning labels...")
     df["label"] = df["cleaned"].apply(assign_label)
