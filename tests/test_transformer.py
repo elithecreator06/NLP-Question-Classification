@@ -1,9 +1,17 @@
-"""Backward-compatible manual DistilBERT smoke test.
+"""Manual DistilBERT smoke test.
 
-Use ``predict.py --model transformer`` for normal single-question inference.
+Run this file directly after training a transformer model. For normal
+single-question inference, use ``src/predict.py --model transformer`` instead.
 """
 
-from predict import predict_transformer
+from pathlib import Path
+import sys
+
+
+SRC = Path(__file__).resolve().parents[1] / "src"
+sys.path.insert(0, str(SRC))
+
+from predict import predict_transformer  # noqa: E402
 
 
 if __name__ == "__main__":
