@@ -1,80 +1,100 @@
-import pandas as pd
+"""Clean questions and prepare labels for model training.
+
+Manual labels in the raw ``Label`` column are preserved. The keyword labels are
+available only as an explicitly requested demonstration fallback.
+"""
+
+from __future__ import annotations
+
+import argparse
 import re
 from pathlib import Path
 
-"""
-Preprocessing script for the question classification project. 
+import pandas as pd
 
-This module prepares the raw dataset for both the baseline model and the DislBert fine-tuning stage. It performs two main tasks:
-1. Text Cleaning (clean_text):
-    - Convert question to lowercase
-    - Removes unnecessary characters and collapses whiteshape
-    - Produces a consistent text format for downstream models
-    
-2. Rule-Based Labelling (assign_label):
-    - Applies a simple heuristic to assign each question a preliminary label
-    - Labels include: conceptual, computational, procedural, and other
-    - These labels act as placeholders until manual annotation or model-based refinement is applied later in the pipeline
-    
-The script loads the raw questions.csv file, processes each entry, and saves the cleaned and labelled dataset to processed_questions.csv. 
-This ensures that both TF-IDF baseline model and the DistilBERT classifier train on a standardised and reproducible dataset.
-"""
 
-# Derive paths from this file rather than the terminal's current directory.
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RAW_DATA_PATH = PROJECT_ROOT / "Data" / "Raw" / "questions.csv"
 PROCESSED_DATA_PATH = PROJECT_ROOT / "Data" / "Processed" / "processed_questions.csv"
 
+
 def clean_text(text: str) -> str:
-    """Basic text cleaning for question classification."""
-    text = text.lower()
-    # Collapse whitespace
+    """Apply conservative normalisation without removing useful question content."""
+    text = str(text).lower()
     text = re.sub(r"\s+", " ", text)
-    # Remove weird chars
     text = re.sub(r"[^a-z0-9 ?!.,]", "", text)
     return text.strip()
 
-def assign_label(question: str) -> str:
-    """
-    Placeholder rule-based label assignment.
-    Will replace this with manual annotation or a better heuristic.
-    """
-    if any(word in question.lower() for word in ["define", "explain", "what is"]):
+
+def assign_heuristic_label(question: str) -> str:
+    """Return a demonstration-only label when manually annotated data is unavailable."""
+    question = question.lower()
+    if any(phrase in question for phrase in ["define", "explain", "what is"]):
         return "conceptual"
-    if any(word in question.lower() for word in ["calculate", "compute", "find"]):
+    if any(phrase in question for phrase in ["calculate", "compute", "find"]):
         return "computational"
-    if any(word in question.lower() for word in ["steps", "procedure", "how do"]):
+    if any(phrase in question for phrase in ["steps", "procedure", "how do"]):
         return "procedural"
-    # Keeping an "other" group means unfamiliar questions are not thrown away.
     return "other"
 
-def preprocess():
-    print("Loading raw data...")
-    # Fail early with a useful message instead of a long Pandas traceback.
-    if not RAW_DATA_PATH.is_file():
-        raise FileNotFoundError(f"Raw dataset not found: {RAW_DATA_PATH}")
-    df = pd.read_csv(RAW_DATA_PATH)
+
+def _manual_labels(raw_labels: pd.Series) -> pd.Series | None:
+    labels = raw_labels.fillna("").astype(str).str.strip().str.lower()
+    invalid = labels.isin({"", "unknown", "nan", "none", "n/a"})
+    return None if invalid.any() else labels
+
+
+def preprocess(
+    raw_data_path: Path = RAW_DATA_PATH,
+    processed_data_path: Path = PROCESSED_DATA_PATH,
+    *,
+    allow_heuristic_labels: bool = False,
+) -> pd.DataFrame:
+    """Write cleaned data, requiring manual labels unless demo mode is selected."""
+    if not raw_data_path.is_file():
+        raise FileNotFoundError(f"Raw dataset not found: {raw_data_path}")
+
+    df = pd.read_csv(raw_data_path)
     if "Question" not in df.columns:
         raise ValueError("The raw dataset needs a 'Question' column.")
 
-    # Empty questions cannot teach either model anything, so leave them out.
-    df = df.dropna(subset=["Question"])
+    df = df.dropna(subset=["Question"]).copy()
     df["Question"] = df["Question"].astype(str).str.strip()
     df = df[df["Question"].ne("")].copy()
     if df.empty:
         raise ValueError("The raw dataset does not contain any usable questions.")
 
-    print("Cleaning data...")
-    df["cleaned"] = df["Question"].apply(clean_text)
+    df["cleaned"] = df["Question"].map(clean_text)
+    manual_labels = _manual_labels(df["Label"]) if "Label" in df.columns else None
+    if manual_labels is not None:
+        df["label"] = manual_labels
+        df["label_source"] = "manual"
+    elif allow_heuristic_labels:
+        df["label"] = df["cleaned"].map(assign_heuristic_label)
+        df["label_source"] = "heuristic"
+    else:
+        raise ValueError(
+            "Every raw Label must be a reviewed class (not 'unknown'). Complete "
+            "manual annotation first, or pass --allow-heuristic-labels for a demo run."
+        )
 
-    print("Assigning labels...")
-    df["label"] = df["cleaned"].apply(assign_label)
+    processed_data_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(processed_data_path, index=False)
+    print(f"Saved {len(df)} processed questions to: {processed_data_path}")
+    print(df["label"].value_counts().to_string())
+    return df
 
-    print("Saving processed dataset...")
-    PROCESSED_DATA_PATH.parent.mkdir(parents = True, exist_ok = True)
-    df.to_csv(PROCESSED_DATA_PATH, index = False)
 
-    print("Done! Processed dataset saved to: ", PROCESSED_DATA_PATH)
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Clean and label question data.")
+    parser.add_argument(
+        "--allow-heuristic-labels",
+        action="store_true",
+        help="create demonstration-only keyword labels when reviewed labels are unavailable",
+    )
+    return parser.parse_args()
+
 
 if __name__ == "__main__":
-    preprocess()
+    args = parse_args()
+    preprocess(allow_heuristic_labels=args.allow_heuristic_labels)

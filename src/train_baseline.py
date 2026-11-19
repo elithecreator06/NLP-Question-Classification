@@ -1,87 +1,98 @@
+"""Train and evaluate a reproducible TF-IDF + Logistic Regression baseline."""
+
+from __future__ import annotations
+
+import argparse
+import json
+
+import joblib
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report
-from pathlib import Path
-import joblib
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.model_selection import train_test_split
 
-"""
-Baseline training script for the question classification project. 
+from utils import PROJECT_ROOT, dataset_summary, load_processed_data, require_ground_truth
 
-This module trains a traditional machine-learning model using TF-IDF features and Logistic Regression.
-The aim is to establish a benchmark level of performance before fine-tuning a transformer-based model such as DistilBERT.
 
-The workflow is as follows:
-1. Load the processed dataset (cleaned text + preliminary labels).
-2. Split the data into training and testing sets using stratification to preserve label distribution.
-3. Convert text into numerical features using TF-IDF, capturing word importance across the dataset.
-4. Train a Logistic Regression classifier as te baseline model.
-5. Evaluate the model using standard metrics (precision, recall, F1-score).
-6. Save both the trained model and the TF-IDF vectorizer for later use in predication scripts or comparison with transformer-based results. 
-"""
-
-# Keep data and artifacts inside this repository regardless of where it is run from.
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DATA_PATH = PROJECT_ROOT / "Data" / "Processed" / "processed_questions.csv"
 MODEL_PATH = PROJECT_ROOT / "Models" / "baseline_logreg.pkl"
 VECTORIZER_PATH = PROJECT_ROOT / "Models" / "tfidf_vectorizer.pkl"
+REPORT_PATH = PROJECT_ROOT / "Models" / "baseline_evaluation.json"
+CONFUSION_MATRIX_PATH = PROJECT_ROOT / "Models" / "baseline_confusion_matrix.csv"
+RANDOM_SEED = 42
 
-def load_processed_data():
-    """Load the prepared data and check it is suitable for a fair split."""
-    if not DATA_PATH.is_file():
-        raise FileNotFoundError(
-            f"Processed dataset not found: {DATA_PATH}. Run preprocess.py first."
+
+def train_baseline(*, allow_heuristic_labels: bool = False) -> dict:
+    """Fit the baseline and write models plus an auditable evaluation report."""
+    df = load_processed_data()
+    require_ground_truth(df, allow_heuristic_labels)
+
+    # Identical normalized questions across train/test inflate the apparent score.
+    duplicates = int(df["cleaned"].duplicated().sum())
+    if duplicates:
+        print(f"Removing {duplicates} duplicate cleaned question(s) before splitting.")
+        df = df.drop_duplicates(subset="cleaned").copy()
+    if df["label"].value_counts().min() < 2:
+        raise ValueError(
+            "Deduplication left fewer than two examples for a label; add more labelled data."
         )
 
-    df = pd.read_csv(DATA_PATH)
-    required_columns = {"cleaned", "label"}
-    missing_columns = required_columns.difference(df.columns)
-    if missing_columns:
-        missing = ", ".join(sorted(missing_columns))
-        raise ValueError(f"Processed dataset is missing required column(s): {missing}")
-
-    # Drop incomplete rows before splitting so the train and test sets stay valid.
-    df = df.dropna(subset=["cleaned", "label"])
-    label_counts = df["label"].value_counts()
-    if len(label_counts) < 2:
-        raise ValueError("At least two labels are needed to train a classifier.")
-    if label_counts.min() < 2:
-        raise ValueError("Each label needs at least two examples for a stratified split.")
-    return df
-
-def train_baseline():
-    print("Loading processed dataset...")
-    df = load_processed_data()
-
-    x = df["cleaned"]
-    y = df["label"]
-
-    print("Splitting dataset...")
     x_train, x_test, y_train, y_test = train_test_split(
-        x, y, test_size = 0.2, random_state = 42, stratify = y
+        df["cleaned"],
+        df["label"],
+        test_size=0.2,
+        random_state=RANDOM_SEED,
+        stratify=df["label"],
     )
 
-    print("Vectorizing text with TF-IDF...")
-    vectorizer = TfidfVectorizer(max_features = 5000)
+    vectorizer = TfidfVectorizer(max_features=5_000, ngram_range=(1, 2))
     x_train_vector = vectorizer.fit_transform(x_train)
     x_test_vector = vectorizer.transform(x_test)
-
-    print("Training Logistic Regression model...")
-    model = LogisticRegression(max_iter = 200)
+    model = LogisticRegression(max_iter=500, class_weight="balanced", random_state=RANDOM_SEED)
     model.fit(x_train_vector, y_train)
 
-    print("Evaluating model...")
-    y_pred = model.predict(x_test_vector)
-    # The smallest class may have no predictions, so report zero rather than warning.
-    print(classification_report(y_test, y_pred, zero_division=0))
+    labels = sorted(model.classes_.tolist())
+    predictions = model.predict(x_test_vector)
+    report = classification_report(y_test, predictions, output_dict=True, zero_division=0)
+    matrix = confusion_matrix(y_test, predictions, labels=labels)
 
-    print("Saving model and vectorizer...")
-    MODEL_PATH.parent.mkdir(parents = True, exist_ok = True)
-    joblib.dump(model,MODEL_PATH)
-    joblib.dump(vectorizer,VECTORIZER_PATH)
+    MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump(model, MODEL_PATH)
+    joblib.dump(vectorizer, VECTORIZER_PATH)
+    pd.DataFrame(matrix, index=labels, columns=labels).rename_axis("actual").to_csv(
+        CONFUSION_MATRIX_PATH
+    )
+    summary = dataset_summary(df)
+    result = {
+        "model": "TF-IDF (1-2 gram) + class-balanced Logistic Regression",
+        "random_seed": RANDOM_SEED,
+        "test_examples": len(y_test),
+        "deduplicated_questions": duplicates,
+        "dataset": summary,
+        "classification_report": report,
+        "warning": (
+            "Metrics use heuristic labels and are demonstration-only."
+            if not summary["ground_truth"]
+            else None
+        ),
+    }
+    REPORT_PATH.write_text(json.dumps(result, indent=2), encoding="utf-8")
 
-    print("Done! Baseline model saved.")
+    print(classification_report(y_test, predictions, zero_division=0))
+    print(f"Saved evaluation report to: {REPORT_PATH}")
+    return result
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Train the TF-IDF baseline.")
+    parser.add_argument(
+        "--allow-heuristic-labels",
+        action="store_true",
+        help="allow demonstration-only training on non-manual labels",
+    )
+    return parser.parse_args()
+
 
 if __name__ == "__main__":
-    train_baseline()
+    args = parse_args()
+    train_baseline(allow_heuristic_labels=args.allow_heuristic_labels)
